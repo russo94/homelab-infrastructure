@@ -1,0 +1,19 @@
+# Vim
+*.swp
+*.swo
+
+# Nano
+*.save
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# Logs
+*.log
