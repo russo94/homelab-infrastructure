@@ -1,3 +1,5 @@
+# DNS
+
 ## Router Default DNS
 
 The ASUS GT-BE98 router is configured with the following default upstream DNS server:
@@ -6,7 +8,7 @@ The ASUS GT-BE98 router is configured with the following default upstream DNS se
 |---------|-------|
 | Default DNS | `192.168.50.52` (Pi-hole) |
 
-Networks that do not specify their own DNS server inherit this default.
+Networks that do not specify their own DNS configuration inherit this default.
 
 ---
 
@@ -16,10 +18,10 @@ Networks that do not specify their own DNS server inherit this default.
 |---------|-------------------|--------|
 | Main LAN | Router default (Pi-hole) | Infrastructure DNS |
 | VLAN 10 | Router default (Pi-hole) | Trusted devices |
-| VLAN 20 | Override to `1.1.1.1` | Independent of infrastructure DNS |
-| VLAN 30 | Override to `1.1.1.1` | Independent of infrastructure DNS |
-| VLAN 40 | Override to `1.1.1.1` | Independent of infrastructure DNS |
-| VLAN 60 | Router default | Guest network uses the router's default DNS configuration |
+| VLAN 20 | Configuration not verified | IoT network |
+| VLAN 30 | Configuration not verified | Media devices |
+| VLAN 40 | Configuration not verified | Camera network |
+| VLAN 60 | Router default (Pi-hole) | Guest network |
 
 ---
 
@@ -32,14 +34,14 @@ Pi-hole provides:
 - Local DNS resolution
 - Centralized DNS management
 
-Pi-hole is used by trusted networks through the router's default DNS configuration.
+Pi-hole is used by trusted networks and the guest network through the router's default DNS configuration.
 
 ---
 
 ## Design Rationale
 
-The default router DNS points to Pi-hole to provide centralized DNS for trusted infrastructure.
+The default router DNS points to Pi-hole to provide centralized DNS management for infrastructure and trusted networks.
 
-Networks that are intentionally isolated from the Main LAN (VLANs 20, 30, and 40) override the default DNS with `1.1.1.1` to avoid depending on infrastructure services that are outside their trust boundary.
+Networks with reduced trust levels should have DNS behavior documented according to their actual router configuration.
 
-VLAN 60 currently inherits the router's default DNS configuration. The exact DNS forwarding behavior of the ASUS router should be verified and documented separately.
+DNS behavior should be verified whenever VLAN firewall or router configuration changes.
