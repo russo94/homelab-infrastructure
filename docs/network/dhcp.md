@@ -31,7 +31,7 @@ Each network has its own independent DHCP scope.
 
 ## Infrastructure Addressing
 
-Infrastructure services should use reserved or static IP addresses to ensure predictable management.
+Infrastructure services use static assignments or DHCP reservations to ensure predictable management.
 
 Examples include:
 
