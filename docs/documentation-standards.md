@@ -41,6 +41,7 @@ Examples:
 | VLAN design | `docs/network/vlans.md` |
 | Access policy | `docs/network/firewall.md` |
 | Recovery order | `docs/disaster-recovery.md` |
+| Architecture decisions | `docs/adr/` |
 | Backup implementation | `offsite-backup-v2` repository |
 
 ---
@@ -113,13 +114,26 @@ Unverified behavior should be:
 
 ---
 
+## Repository Structure
+
+The repository is organized as:
+
+| Location | Purpose |
+|----------|---------|
+| `inventory/` | Current infrastructure state |
+| `docs/network/` | Network design and policies |
+| `docs/services/` | Service documentation |
+| `docs/integrations/` | External integrations |
+| `docs/adr/` | Architecture decisions |
+| `docs/templates/` | Documentation templates |
+
+---
+
 ## Templates
 
 Reusable documentation templates are stored in:
 
-```text
-docs/templates/
-```
+    docs/templates/
 
 Current templates:
 
@@ -157,6 +171,8 @@ Service documentation should cover:
 
 Deployment-specific values such as IP addresses and resource allocations should reference the inventory.
 
+Service documents should not become a second inventory.
+
 ---
 
 ## Procedure Documentation
@@ -180,11 +196,9 @@ Documents should use repository-relative paths where practical.
 
 Examples:
 
-```text
-docs/network/README.md
-inventory/ip-addresses.md
-docs/disaster-recovery.md
-```
+    docs/network/README.md
+    inventory/ip-addresses.md
+    docs/disaster-recovery.md
 
 Before deleting or moving a file, search the repository for references to its old path.
 
@@ -213,17 +227,11 @@ Documentation changes should be verified before committing.
 
 Recommended checks:
 
-```bash
-git status
-```
+    git status
 
-```bash
-git diff
-```
+    git diff
 
-```bash
-grep -RIn --exclude-dir=.git "old-reference" .
-```
+    grep -RIn --exclude-dir=.git "old-reference" .
 
 The repository should not contain:
 
