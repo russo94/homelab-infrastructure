@@ -2,22 +2,9 @@
 
 ## Purpose
 
-NGINX Proxy Manager provides reverse proxy services for the homelab.
+NGINX Proxy Manager provides reverse proxy functionality and TLS certificate management for publicly accessible services.
 
-It securely publishes selected internal services using HTTPS while managing SSL/TLS certificates and proxy routing.
-
----
-
-# Role in the Homelab
-
-NGINX Proxy Manager acts as the public entry point for services that are intentionally exposed outside the local network.
-
-It provides:
-
-- Reverse proxy
-- HTTPS termination
-- Automatic certificate management
-- Centralized access to published services
+It acts as the entry point for services exposed through HTTPS.
 
 ---
 
@@ -25,27 +12,88 @@ It provides:
 
 | Property | Value |
 |----------|-------|
-| Type | LXC |
-| Host | Proxmox VE |
+| Type | LXC Container |
+| Container ID | `102` |
+| Hostname | `nginxproxymanager` |
+| IP Address | `192.168.50.87` |
+| Network | Main LAN |
 | Status | Production |
-| Operating System | Debian |
-| Inventory | See `inventory/containers.md` |
+| Hypervisor | Proxmox VE |
 
-Deployment-specific information such as container ID, CPU, memory, and IP address is maintained in the inventory.
+Inventory references:
+
+- `inventory/containers.md`
+- `inventory/ip-addresses.md`
 
 ---
 
-# Network
+# Role in the Homelab
 
-NGINX Proxy Manager is deployed on the Main LAN.
+NGINX Proxy Manager provides:
 
-It receives inbound HTTPS traffic and forwards requests to internal services.
+- Reverse proxying
+- HTTPS termination
+- TLS certificate management
+- Public service routing
 
-Public access is restricted to services intentionally published.
+Current intended public access flow:
 
-IP addressing is documented in:
+```text
+Internet
+   |
+   v
+Cloudflare
+   |
+   v
+NGINX Proxy Manager
+   |
+   +--> Vaultwarden
+   |
+   +--> Public Endpoints
+```
 
-`inventory/ip-addresses.md`
+Detailed proxy host configuration should be verified from NGINX Proxy Manager.
+
+---
+
+# Deployment Architecture
+
+NGINX Proxy Manager is installed directly inside the LXC container.
+
+It is not running through Docker.
+
+Application components:
+
+```text
+LXC 102
+ |
+ ├── npm.service
+ |
+ └── openresty.service
+```
+
+---
+
+# Installation Paths
+
+Verified paths:
+
+```text
+/opt/nginxproxymanager
+/opt/certbot
+```
+
+---
+
+# Network Configuration
+
+Listening ports:
+
+| Port | Protocol | Purpose |
+|------|----------|---------|
+| 80 | TCP | HTTP |
+| 81 | TCP | Administration interface |
+| 443 | TCP | HTTPS |
 
 ---
 
@@ -54,104 +102,162 @@ IP addressing is documented in:
 NGINX Proxy Manager depends on:
 
 - Proxmox VE
-- Router
-- Internet connectivity
-- DNS
-- Valid TLS certificates
+- Network availability
+- DNS resolution
+- Cloudflare configuration
+- TLS certificate system
 
 ---
 
 # Dependents
 
-Services currently published through NGINX Proxy Manager include:
+Services depending on NGINX Proxy Manager:
 
 - Vaultwarden
-
-Additional services may be added as the homelab grows.
+- Public endpoints
 
 ---
 
-# Data
+# Persistent Data
 
 Important data includes:
 
-- Proxy Hosts
+- Proxy host configurations
 - SSL certificates
-- Access Lists
-- Hosts configuration
-- Redirection rules
+- Access lists
+- User configuration
+- Application database
 
-Persistent configuration should be included in backups.
+Persistent data must be included in backups.
 
 ---
 
 # Backup
 
-NGINX Proxy Manager is included in the homelab backup strategy.
+Backup strategy:
 
-Backup implementation is documented in the `offsite-backup-v2` repository.
+`offsite-backup-v2`
+
+Recovery must include:
+
+- NGINX Proxy Manager configuration
+- Certificate data
+- Proxy host definitions
 
 ---
 
-# Restore
+# Restore Procedure
 
-General recovery order is documented in:
+General recovery order:
 
 `docs/disaster-recovery.md`
 
-After restoring NGINX Proxy Manager, verify:
+After restoring:
 
-- Web interface
-- HTTPS certificates
-- Proxy hosts
-- DNS resolution
-- External accessibility
-
----
-
-# Updates
-
-Update during planned maintenance.
-
-After updating, verify:
-
-- Web interface
-- HTTPS access
-- Certificate renewal
-- Proxy routing
-- Published services
+1. Start the container.
+2. Verify npm service.
+3. Verify OpenResty service.
+4. Verify ports 80/81/443.
+5. Test HTTPS access.
 
 ---
 
-# Monitoring
+# Verification
 
-Routine health checks include:
+Last verified:
 
-- Container running
-- Web interface accessible
-- Certificates valid
-- Proxy hosts online
-- No critical log errors
+2026-07-23
+
+Checks performed:
+
+## Network
+
+Command:
+
+```bash
+pct exec 102 -- ip addr
+```
+
+Result:
+
+```text
+192.168.50.87/24
+```
+
+---
+
+## Services
+
+Command:
+
+```bash
+systemctl list-units --type=service | grep -i npm
+```
+
+Result:
+
+```text
+npm.service active running
+```
+
+Command:
+
+```bash
+systemctl list-units --type=service | grep -i open
+```
+
+Result:
+
+```text
+openresty.service active running
+```
+
+---
+
+## Ports
+
+Command:
+
+```bash
+ss -tulpn | grep -E ":80|:81|:443"
+```
+
+Result:
+
+```text
+80  HTTP
+81  Administration
+443 HTTPS
+```
 
 ---
 
 # Troubleshooting
 
-Common checks include:
+Check NGINX Proxy Manager:
 
-- Verify the container is running.
-- Verify ports 80 and 443 are reachable.
-- Check certificate status.
-- Confirm DNS records.
-- Verify backend services are reachable.
-- Review NGINX Proxy Manager logs.
+```bash
+systemctl status npm
+```
+
+Check OpenResty:
+
+```bash
+systemctl status openresty
+```
+
+Check ports:
+
+```bash
+ss -tulpn | grep -E ":80|:81|:443"
+```
 
 ---
 
 # Related Documentation
 
-- `docs/architecture.md`
-- `docs/network/`
+- `docs/services/vaultwarden.md`
+- `docs/services/public-endpoints.md`
 - `docs/disaster-recovery.md`
 - `inventory/containers.md`
 - `inventory/ip-addresses.md`
