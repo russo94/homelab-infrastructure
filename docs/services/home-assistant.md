@@ -4,23 +4,7 @@
 
 Home Assistant is the central home automation platform for the homelab.
 
-It integrates smart devices, automations, sensors, and dashboards into a single management interface.
-
----
-
-# Role in the Homelab
-
-Home Assistant provides centralized automation and monitoring for the home environment.
-
-Typical responsibilities include:
-
-- Device integration
-- Automations
-- Dashboards
-- Notifications
-- Presence detection
-- Energy monitoring
-- Smart home management
+It integrates smart devices, automations, sensors, dashboards, and notifications into a single management interface.
 
 ---
 
@@ -28,25 +12,105 @@ Typical responsibilities include:
 
 | Property | Value |
 |----------|-------|
-| Type | LXC |
-| Host | Proxmox VE |
+| Type | Virtual Machine |
+| VM ID | `103` |
+| Hostname | `homeassistant` |
+| Operating System | Home Assistant OS 18.1 |
+| Home Assistant Core | `2026.7.3` |
+| Supervisor | `2026.07.3` |
+| Architecture | amd64 |
+| Machine Type | `q35` |
+| CPU | 2 cores |
+| RAM | 4096 MB |
+| Disk | 32 GB |
+| Network Adapter | VirtIO |
+| Bridge | `vmbr0` |
 | Status | Production |
-| Operating System | Debian |
-| Inventory | See `inventory/containers.md` |
+| Hypervisor | Proxmox VE |
 
-Deployment-specific information such as container ID, CPU, memory, and IP address is maintained in the inventory.
+Inventory references:
+
+- `inventory/virtual-machines.md`
+- `inventory/ip-addresses.md`
 
 ---
 
-# Network
+# Role in the Homelab
 
-Home Assistant is deployed on the Main LAN.
+Home Assistant provides:
 
-Access is limited to trusted internal networks unless explicitly published.
+- Smart home automation
+- Device integration
+- Dashboards
+- Notifications
+- Presence detection
+- Energy monitoring
+- Home environment monitoring
 
-IP addressing is documented in:
+It acts as the central automation platform for connected devices.
 
-`inventory/ip-addresses.md`
+---
+
+# Network Configuration
+
+Verified network address:
+
+| Interface | Address | Purpose |
+|-----------|---------|---------|
+| `enp6s18` | `192.168.50.194/24` | Main LAN |
+
+Home Assistant internal networking:
+
+| Interface | Address | Purpose |
+|-----------|---------|---------|
+| `docker0` | `172.30.232.1` | Container networking |
+| `hassio` | `172.30.32.1` | Supervisor networking |
+
+The Home Assistant web interface is available on:
+
+```text
+http://192.168.50.194:8123
+```
+
+---
+
+# Architecture
+
+Home Assistant runs as a dedicated virtual machine.
+
+Architecture:
+
+```text
+Proxmox VE
+ |
+ └── VM 103
+       |
+       └── Home Assistant OS
+              |
+              ├── Home Assistant Core
+              ├── Supervisor
+              └── Add-ons
+```
+
+---
+
+# Installed Components
+
+Verified:
+
+- Home Assistant OS
+- Home Assistant Core
+- Supervisor
+
+Current versions:
+
+```text
+Home Assistant Core:
+2026.7.3
+
+Supervisor:
+2026.07.3
+```
 
 ---
 
@@ -55,126 +119,112 @@ IP addressing is documented in:
 Home Assistant depends on:
 
 - Proxmox VE
-- Router
-- DNS
-- Network connectivity
-
-Additional integrations may introduce further dependencies.
-
----
-
-# Dependents
-
-The following rely on Home Assistant:
-
-- Home automations
-- Smart devices
-- Dashboards
-- Mobile application
-- Notifications
-
----
-
-# Integrations
-
-Installed integrations should be documented separately under:
-
-`docs/integrations/`
-
-Each integration should describe:
-
-- Purpose
-- Dependencies
-- Configuration
-- Restore considerations
+- Network availability
+- DNS resolution
+- Internet connectivity
+- Connected smart devices and integrations
 
 ---
 
 # Data
 
-Important data includes:
+Important Home Assistant data includes:
 
 - Configuration
 - Automations
 - Dashboards
 - Integrations
-- Add-ons
+- Add-on configuration
 - Secrets
 - User configuration
 
-Persistent data must always be included in backups.
+Persistent data must be included in backups.
 
 ---
 
 # Backup
 
-Home Assistant is included in the homelab backup strategy.
+Home Assistant should be included in the regular Proxmox backup strategy.
 
-Backup implementation is documented in the `offsite-backup-v2` repository.
+Backup implementation is documented in the separate:
+
+```text
+offsite-backup-v2
+```
+
+repository.
 
 ---
 
 # Restore
 
-General recovery order is documented in:
+General recovery order:
 
 `docs/disaster-recovery.md`
 
-After restoring Home Assistant, verify:
+After restoring:
 
-- Web interface
-- Automations
-- Integrations
-- Dashboards
-- Mobile application
-- Notifications
-
----
-
-# Updates
-
-Update during scheduled maintenance.
-
-After updating, verify:
-
-- Startup completed successfully
-- Automations execute correctly
-- Integrations reconnect
-- Dashboards load
-- Logs contain no critical errors
+1. Start VM 103.
+2. Verify network connectivity.
+3. Verify Home Assistant availability.
+4. Verify automations.
+5. Verify integrations.
+6. Verify dashboards.
 
 ---
 
 # Monitoring
 
-Routine health checks include:
+Routine checks:
 
-- Container running
-- Web interface accessible
-- Automations functioning
+- VM running
+- Home Assistant web interface accessible
+- Supervisor healthy
 - Integrations online
-- System logs clean
+- Automations functioning
+
+Verified:
+
+```text
+Supervisor health:
+healthy
+```
 
 ---
 
 # Troubleshooting
 
-Common checks include:
+Check VM state from the Proxmox host:
 
-- Verify the container is running.
-- Review Home Assistant logs.
-- Confirm integrations are connected.
-- Verify network connectivity.
-- Check automation traces.
-- Test dashboard accessibility.
+```bash
+qm status 103
+```
+
+Check Home Assistant information from the Home Assistant OS terminal:
+
+```bash
+ha info
+```
+
+Check Supervisor from the Home Assistant OS terminal:
+
+```bash
+ha supervisor info
+```
+
+Check web availability from the Proxmox host:
+
+```bash
+curl http://192.168.50.194:8123
+```
 
 ---
 
 # Related Documentation
 
 - `docs/architecture.md`
+- `docs/network/vlans.md`
+- `docs/security.md`
 - `docs/disaster-recovery.md`
-- `docs/network/`
-- `docs/integrations/`
-- `inventory/containers.md`
+- `inventory/virtual-machines.md`
 - `inventory/ip-addresses.md`
