@@ -19,32 +19,30 @@ The Tesla Fleet API requires a publicly accessible HTTPS endpoint that hosts a d
 
 # Architecture
 
-```
 Tesla Fleet API
-        │
-        ▼
+        |
+        v
 Cloudflare
-        │
-        ▼
+        |
+        v
 NGINX Proxy Manager
-        │
-        ▼
+        |
+        v
 public-endpoints
 (LXC 105)
-        │
-        ▼
+        |
+        v
 Tesla Public Key
 
 ----------------------------
 
 Home Assistant
 (VM 103)
-        │
-        ▼
+        |
+        v
 Tailscale
-```
 
-Home Assistant is **never directly reachable from the Internet**.
+Home Assistant is never directly reachable from the Internet.
 
 ---
 
@@ -64,23 +62,19 @@ Home Assistant is **never directly reachable from the Internet**.
 
 Private key:
 
-```
-/etc/public-endpoints/keys/private-key.pem
-```
+    /etc/public-endpoints/keys/private-key.pem
 
 Public key:
 
-```
-/var/www/html/.well-known/appspecific/com.tesla.3p.public-key.pem
-```
+    /var/www/html/.well-known/appspecific/com.tesla.3p.public-key.pem
 
 Public endpoint:
 
-```
-https://tesla.phanom-lab.org/.well-known/appspecific/com.tesla.3p.public-key.pem
-```
+    https://tesla.phanom-lab.org/.well-known/appspecific/com.tesla.3p.public-key.pem
 
-The private key must never leave the server except as part of an encrypted backup.
+The private key must never be exposed through the web root or committed to Git.
+
+Encrypted offline backups may contain the private key for recovery purposes.
 
 ---
 
@@ -88,9 +82,7 @@ The private key must never leave the server except as part of an encrypted backu
 
 The public endpoint exposes only:
 
-```
-/.well-known/appspecific/com.tesla.3p.public-key.pem
-```
+    /.well-known/appspecific/com.tesla.3p.public-key.pem
 
 No Home Assistant endpoints are published.
 
@@ -104,23 +96,17 @@ No Tesla traffic reaches Home Assistant directly.
 
 Internal test:
 
-```bash
-curl http://192.168.50.201/.well-known/appspecific/com.tesla.3p.public-key.pem
-```
+    curl http://192.168.50.201/.well-known/appspecific/com.tesla.3p.public-key.pem
 
 External test:
 
-```bash
-curl https://tesla.phanom-lab.org/.well-known/appspecific/com.tesla.3p.public-key.pem
-```
+    curl https://tesla.phanom-lab.org/.well-known/appspecific/com.tesla.3p.public-key.pem
 
 Expected result:
 
-```
------BEGIN PUBLIC KEY-----
-...
------END PUBLIC KEY-----
-```
+    -----BEGIN PUBLIC KEY-----
+    ...
+    -----END PUBLIC KEY-----
 
 ---
 
@@ -130,12 +116,12 @@ If the container is lost:
 
 1. Restore LXC 105.
 2. Restore the Tesla private key.
-3. Regenerate the public key if required.
+3. Restore the matching public key.
 4. Verify file permissions.
 5. Restore the NGINX Proxy Manager proxy host.
 6. Confirm public HTTPS access.
 
-If the private key is lost, a new Tesla key pair must be generated and the Tesla Developer Portal configuration updated.
+If the private key is lost, generate a new key pair and update the Tesla Developer Portal configuration.
 
 ---
 
@@ -144,3 +130,12 @@ If the private key is lost, a new Tesla key pair must be generated and the Tesla
 - Add automated health monitoring.
 - Add configuration management using Ansible.
 - Support additional public verification endpoints if required.
+
+---
+
+# Related Documentation
+
+- `docs/services/public-endpoints.md`
+- `docs/services/home-assistant.md`
+- `docs/services/nginx-proxy-manager.md`
+- `docs/adr/ADR-001-public-endpoints.md`
