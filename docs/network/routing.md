@@ -24,27 +24,25 @@ It is responsible for:
 
 ## Network Topology
 
-```text
                     Internet
-                        │
-                        ▼
+                        |
+                        v
                  ASUS GT-BE98
-                        │
-        ┌───────────────┼────────────────┐
-        │               │                │
-        ▼               ▼                ▼
-    Main LAN         VLANs          Guest Network
-  192.168.50.0     10/20/30/40      VLAN 60
-```
+                        |
+        +---------------+---------------+
+        |               |               |
+        v               v               v
+    Main LAN       User VLANs       Guest VLAN
+ 192.168.50.0     10/20/30/40          60
 
 ---
 
 ## Routing Policy
 
 | Source | Destination | Routing |
-|---------|-------------|---------|
+|--------|-------------|---------|
 | Main LAN | Internet | Allowed |
-| Main LAN | VLANs | Allowed |
+| Main LAN | VLANs | Configuration not verified |
 | VLAN 10 | Main LAN | Allowed |
 | VLAN 20 | Main LAN | Blocked |
 | VLAN 30 | Main LAN | Blocked |
