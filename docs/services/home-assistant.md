@@ -94,6 +94,102 @@ Proxmox VE
 
 ---
 
+# Remote Access
+
+Home Assistant remote access is provided through the private homelab network.
+
+No public internet exposure is configured.
+
+Remote access path:
+
+iPhone
+ |
+ | Tailscale VPN
+ |
+ts-gateway-01
+VM 104
+ |
+ | Subnet route
+ | 192.168.50.0/24
+ |
+NGINX Proxy Manager
+LXC 102
+192.168.50.87
+ |
+ | HTTPS reverse proxy
+ |
+Home Assistant
+VM 103
+192.168.50.194:8123
+
+Remote URL:
+
+https://ha.phanom-lab.org
+
+Security model:
+
+- No router port forwarding
+- No public Home Assistant exposure
+- HTTPS provided by NGINX Proxy Manager
+- Remote access requires Tailscale authentication
+
+---
+
+# Reverse Proxy Configuration
+
+NGINX Proxy Manager provides HTTPS termination.
+
+Proxy configuration:
+
+| Property | Value |
+|----------|-------|
+| Domain | `ha.phanom-lab.org` |
+| Forward Host | `192.168.50.194` |
+| Forward Port | `8123` |
+| Scheme | HTTP |
+| Websocket Support | Enabled |
+| SSL Certificate | `*.phanom-lab.org` |
+| Force SSL | Enabled |
+| HTTP/2 | Enabled |
+
+Home Assistant trusts NGINX Proxy Manager as a reverse proxy.
+
+Configuration added in configuration.yaml:
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.50.87
+
+---
+
+# DNS Configuration
+
+Private DNS resolution is provided by Pi-hole.
+
+Pi-hole:
+
+192.168.50.52
+
+Local DNS record:
+
+ha.phanom-lab.org -> 192.168.50.87
+
+Tailscale DNS:
+
+MagicDNS:
+Enabled
+
+Global nameserver:
+192.168.50.52
+
+Override DNS:
+Enabled
+
+This allows Tailscale-connected devices to resolve private homelab domains.
+
+---
+
 # Installed Components
 
 Verified:
