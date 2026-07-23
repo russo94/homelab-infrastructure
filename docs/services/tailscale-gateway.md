@@ -1,147 +1,180 @@
 # Tailscale Gateway
 
-## Overview
-
-The Tailscale Gateway provides secure remote administrative access to the homelab without exposing management services to the public Internet.
-
-This virtual machine acts as the trusted entry point for remote administration.
-
----
-
 ## Purpose
 
-The gateway is responsible for:
+Tailscale Gateway provides secure remote access to the homelab infrastructure without exposing administrative services directly to the internet.
 
-- Providing encrypted remote connectivity using Tailscale.
-- Allowing SSH access from authorized devices.
-- Keeping the Proxmox host isolated from direct Internet access.
-- Eliminating the need for router port forwarding.
+It acts as the remote administration entry point for accessing internal resources through the private Tailscale network.
 
 ---
 
-## Virtual Machine
+# Deployment
 
 | Property | Value |
 |----------|-------|
+| Type | Virtual Machine |
 | VM ID | `104` |
 | Hostname | `ts-gateway-01` |
 | Operating System | Debian 13.6 |
-| Machine Type | q35 |
 | Firmware | OVMF (UEFI) |
+| Machine Type | `q35` |
 | CPU | 1 vCPU |
-| Memory | 1 GB |
+| RAM | 1024 MB |
 | Disk | 8 GB |
 | Disk Controller | VirtIO SCSI |
 | Network Adapter | VirtIO |
 | Bridge | `vmbr0` |
-| VLAN Tag | None |
-| QEMU Guest Agent | Enabled |
+| Firewall | Enabled |
+| Status | Production |
+| Hypervisor | Proxmox VE |
+
+Inventory references:
+
+- `inventory/virtual-machines.md`
+- `inventory/ip-addresses.md`
 
 ---
 
-## Network
+# Role in the Homelab
 
-| Property | Value |
-|----------|-------|
-| LAN Address | `192.168.50.193` |
-| Tailscale Address | `100.68.131.104` |
-| MagicDNS Hostname | `ts-gateway-01` |
+Tailscale Gateway provides:
+
+- Secure remote administration
+- Private access to homelab resources
+- Remote SSH access without public port exposure
+- Tailscale network connectivity
+
+The gateway provides a controlled access path into the homelab.
 
 ---
 
-## Installed Software
+# Network Configuration
+
+Verified network addresses:
+
+| Interface | Address | Purpose |
+|-----------|---------|---------|
+| `ens18` | `192.168.50.193/24` | Internal LAN |
+| `tailscale0` | `100.68.131.104/32` | Tailscale network |
+
+Network architecture:
+
+```text
+Remote Device
+      |
+      v
+Tailscale Network
+      |
+      v
+ts-gateway-01
+192.168.50.193
+      |
+      v
+Homelab LAN
+192.168.50.0/24
+```
+
+---
+
+# Deployment Architecture
+
+Tailscale is installed directly inside the virtual machine.
+
+Architecture:
+
+```text
+Proxmox VE
+ |
+ └── VM 104
+       |
+       ├── ssh.service
+       |
+       └── tailscaled.service
+```
+
+---
+
+# Installed Software
+
+Verified installed services:
 
 - Tailscale
 - OpenSSH Server
-- QEMU Guest Agent
-- sudo
-- curl
 
 ---
 
-## SSH Configuration
+# Tailscale Configuration
 
-The gateway accepts SSH connections using public-key authentication only.
-
-Effective configuration:
+Verified service:
 
 ```text
-PermitRootLogin no
-PasswordAuthentication no
-PubkeyAuthentication yes
+tailscaled.service
 ```
 
-Root login is disabled.
+Status:
 
-Password authentication is disabled.
-
-Administration is performed using an ED25519 SSH key.
-
----
-
-## Access Methods
-
-### From the Local Network
-
-```bash
-ssh phanom@192.168.50.193
+```text
+active (running)
 ```
 
-### From Anywhere
+The service is enabled and starts automatically.
 
-```bash
-ssh phanom@ts-gateway-01
-```
+Verified Tailscale address:
 
-MagicDNS automatically resolves the hostname over the private Tailscale network.
-
----
-
-## Verification
-
-The following items were verified after deployment:
-
-- VM boots successfully.
-- QEMU Guest Agent operational.
-- SSH reachable over LAN.
-- SSH reachable through Tailscale.
-- ED25519 authentication working.
-- Password login rejected.
-- Root login rejected.
-- MagicDNS functioning correctly.
-- GitHub SSH authentication configured on the Proxmox host.
-
----
-
-## Operational Commands
-
-### Check Tailscale Status
-
-```bash
-sudo tailscale status
-```
-
-### Display Tailscale IP
-
-```bash
-tailscale ip -4
-```
-
-### Check SSH Service
-
-```bash
-sudo systemctl status ssh
-```
-
-### Check Guest Agent
-
-```bash
-sudo systemctl status qemu-guest-agent
+```text
+100.68.131.104
 ```
 
 ---
 
-## Recovery Procedure
+# SSH Access
+
+SSH provides administrative access to the VM.
+
+Verified:
+
+```text
+ssh.service active (running)
+```
+
+SSH access from the Proxmox host requires key-based authentication.
+
+Root SSH login was not available during verification.
+
+---
+
+# Dependencies
+
+Tailscale Gateway depends on:
+
+- Proxmox VE
+- Network availability
+- Internet connectivity
+- Tailscale service availability
+
+---
+
+# Backup
+
+The VM should be included in the regular Proxmox backup strategy.
+
+Important recovery requirements:
+
+- VM configuration
+- Virtual disk
+- Tailscale configuration and authentication data stored inside the VM
+
+The general backup implementation is maintained in the separate:
+
+```text
+offsite-backup-v2
+```
+
+repository.
+
+---
+
+# Recovery Procedure
 
 If remote access fails:
 
@@ -149,16 +182,34 @@ If remote access fails:
 2. Verify LAN connectivity.
 3. Check the Tailscale service.
 4. Restart Tailscale if necessary.
-5. Verify MagicDNS resolution.
-6. Test SSH from another authorized device.
+5. Verify Tailscale connectivity.
+6. Test SSH from an authorized device.
 
-If the node has been removed from the tailnet, reauthenticate it using the Tailscale CLI.
+If the node is no longer connected to the tailnet, reauthenticate it using the Tailscale CLI.
 
 ---
 
-## Design Decisions
+# Restore Procedure
 
-This service exists because it offers several advantages over installing Tailscale directly on the Proxmox host:
+General recovery order:
+
+`docs/disaster-recovery.md`
+
+After restoring:
+
+1. Start VM 104.
+2. Verify network connectivity.
+3. Verify SSH availability.
+4. Verify Tailscale service.
+5. Verify remote access.
+
+---
+
+# Design Decisions
+
+Tailscale is deployed inside a dedicated VM instead of directly on the Proxmox host.
+
+Advantages:
 
 - Infrastructure services remain isolated.
 - The hypervisor has a smaller attack surface.
@@ -168,14 +219,81 @@ This service exists because it offers several advantages over installing Tailsca
 
 ---
 
-## Status
-
-**Production Ready**
+# Verification Status
 
 Last verified:
 
-- SSH Hardening ✅
-- Tailscale Connected ✅
-- MagicDNS Working ✅
-- ED25519 Authentication ✅
-- GitHub SSH Access Configured ✅
+2026-07-23
+
+Verified:
+
+- VM deployment
+- VM network configuration
+- LAN IP address
+- Tailscale IP address
+- Tailscale service running
+- Tailscale connection active
+- SSH service running
+- SSH access from the Proxmox host requires key-based authentication
+
+Not verified:
+
+- MagicDNS configuration
+- Guest operating system firewall state
+
+---
+
+# Troubleshooting
+
+Check Tailscale:
+
+```bash
+systemctl status tailscaled
+```
+
+Restart Tailscale:
+
+```bash
+systemctl restart tailscaled
+```
+
+Check connection:
+
+```bash
+tailscale status
+```
+
+Check SSH:
+
+```bash
+systemctl status ssh
+```
+
+---
+
+# Security Notes
+
+Do not expose SSH directly to the internet.
+
+Administrative access should occur through:
+
+- Tailscale
+- Internal network access
+- Approved authentication methods
+
+Never commit:
+
+- Tailscale authentication keys
+- Private keys
+- Secrets
+
+---
+
+# Related Documentation
+
+- `docs/architecture.md`
+- `docs/network/vlans.md`
+- `docs/security.md`
+- `docs/disaster-recovery.md`
+- `inventory/virtual-machines.md`
+- `inventory/ip-addresses.md`
