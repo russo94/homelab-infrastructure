@@ -12,7 +12,7 @@ It is the authoritative source for VM deployment information.
 
 | VM ID | Hostname | Purpose | Operating System | RAM | Disk | Status |
 |------:|----------|---------|------------------|-----|------|--------|
-| 103 | `home-assistant` | Home automation platform | To be verified | 4096 MB | 32 GB | Production |
+| 103 | `home-assistant` | Home automation platform | Home Assistant OS 18.1 | 4096 MB | 32 GB | Production |
 | 104 | `ts-gateway-01` | Secure remote administration gateway | Debian 13.6 | 1024 MB | 8 GB | Production |
 
 ---
