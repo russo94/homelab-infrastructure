@@ -4,7 +4,9 @@
 
 This document defines the VLANs used in the homelab and their intended roles.
 
-IP subnets and gateway addresses are maintained in `inventory/ip-addresses.md`.
+IP subnets and gateway addresses are maintained in:
+
+`inventory/ip-addresses.md`
 
 ---
 
@@ -41,7 +43,7 @@ VLAN 20 is intended for Internet-connected household devices.
 Characteristics:
 
 - Blocked from the Main LAN
-- Uses external DNS
+- DNS configuration depends on router configuration
 - Intended to reduce the impact of insecure IoT devices
 
 ---
@@ -53,7 +55,7 @@ VLAN 30 is intended for TVs, streaming devices, and other media equipment.
 Characteristics:
 
 - Blocked from the Main LAN
-- Uses external DNS
+- DNS configuration depends on router configuration
 - Separated from trusted personal devices
 
 ---
@@ -65,7 +67,7 @@ VLAN 40 is intended for cameras and surveillance-related devices.
 Characteristics:
 
 - Blocked from the Main LAN
-- Uses external DNS
+- DNS configuration depends on router configuration
 - Isolated from other infrastructure wherever possible
 
 ---
@@ -78,7 +80,7 @@ Characteristics:
 
 - Internet access only
 - Blocked from the Main LAN
-- Router-default DNS
+- Uses Pi-hole DNS filtering
 - Wireless access-point isolation enabled
 
 ---
@@ -87,4 +89,6 @@ Characteristics:
 
 Only VLAN 10 is permitted to initiate connections to the Main LAN.
 
-Detailed access-control rules are documented in `docs/network/firewall.md`.
+Detailed access-control rules are documented in:
+
+`docs/network/firewall.md`
