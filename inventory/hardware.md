@@ -20,11 +20,13 @@ It is the authoritative source for physical devices, hardware specifications, an
 | Installed RAM | 14 GB |
 | Integrated GPU | AMD Radeon Vega Mobile Graphics |
 | Dedicated GPU | NVIDIA GeForce GTX 1650 Mobile / Max-Q |
-| Internal Storage | NVMe 512 GB class device |
+| Internal Storage | Micron 2200V NVMe 512 GB SSD |
 | Network Interfaces | Gigabit Ethernet (`nic0`), WiFi (`wlp4s0`) |
 | BIOS Version | FX505DT.315 |
 | BIOS Release Date | 2020-09-22 |
 | Virtualization | AMD-V enabled |
+| Proxmox VE Version | 9.2.4 |
+| Kernel | 7.0.14-5-pve |
 | Production Status | Active |
 
 ---
