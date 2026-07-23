@@ -22,19 +22,17 @@ The homelab design prioritizes minimizing the public attack surface while keepin
 
 # Decision
 
-A dedicated Debian LXC container (`public-endpoints`, CT105) will host all publicly accessible static verification files.
+A dedicated Debian LXC container (`public-endpoints`, LXC 105) will host all publicly accessible static verification files.
 
 Traffic flows as follows:
 
-```
-Internet
-    │
-Cloudflare
-    │
-NGINX Proxy Manager
-    │
-public-endpoints
-```
+    Internet
+        |
+    Cloudflare
+        |
+    NGINX Proxy Manager
+        |
+    public-endpoints
 
 Home Assistant remains accessible only through Tailscale and is never exposed to the Internet.
 
@@ -109,7 +107,7 @@ The dedicated service:
 
 - hosts only static files;
 - contains no application runtime;
-- stores private keys outside the web root;
+- stores private keys outside the web root and excludes them from version control;
 - is protected by Cloudflare and NGINX Proxy Manager;
 - can be restored independently.
 
@@ -122,3 +120,11 @@ This decision should be revisited if:
 - Tesla Fleet API requirements change;
 - a centralized public web service is introduced;
 - infrastructure is migrated away from Proxmox.
+
+---
+
+# Related Documentation
+
+- `docs/services/public-endpoints.md`
+- `docs/integrations/tesla-fleet.md`
+- `docs/services/nginx-proxy-manager.md`
