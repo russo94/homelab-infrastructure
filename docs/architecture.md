@@ -138,7 +138,7 @@ All other services remain accessible only through the private network or Tailsca
 
 ## Backup Architecture
 
-The homelab uses an external USB drive for offsite-style backup storage.
+The homelab uses an external USB drive connected to the Proxmox host for backup storage.
 
 Backup implementation, retention, automation, and restore mechanics are maintained in the separate repository:
 
