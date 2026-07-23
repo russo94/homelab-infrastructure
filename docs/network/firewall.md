@@ -23,11 +23,7 @@ It describes the intended security model rather than router-specific implementat
 | Source | Destination | Access |
 |---------|-------------|--------|
 | Main LAN | Internet | Allowed |
-| Main LAN | VLAN 10 | Allowed |
-| Main LAN | VLAN 20 | Allowed |
-| Main LAN | VLAN 30 | Allowed |
-| Main LAN | VLAN 40 | Allowed |
-| Main LAN | VLAN 60 | Allowed |
+| Main LAN | VLANs | Configuration not verified |
 | VLAN 10 | Main LAN | Allowed |
 | VLAN 20 | Main LAN | Blocked |
 | VLAN 30 | Main LAN | Blocked |
@@ -38,7 +34,7 @@ It describes the intended security model rather than router-specific implementat
 
 ## Administrative Access
 
-Infrastructure administration is performed exclusively through:
+Infrastructure administration is performed through:
 
 - Tailscale
 - SSH public-key authentication
