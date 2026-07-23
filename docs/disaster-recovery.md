@@ -93,10 +93,20 @@ Restore infrastructure services in dependency order.
 Suggested order:
 
 1. Pi-hole
-2. NGINX Proxy Manager
-3. Vaultwarden
+2. Tailscale Gateway
+3. NGINX Proxy Manager
 4. Public Endpoints
-5. Home Assistant
+5. Vaultwarden
+6. Home Assistant
+
+Reasoning:
+
+- Pi-hole provides DNS services.
+- Tailscale Gateway restores remote administrative access.
+- NGINX Proxy Manager restores reverse proxy and TLS functionality.
+- Public Endpoints restore external verification services.
+- Vaultwarden restores password management.
+- Home Assistant restores home automation functionality.
 
 The exact restore procedure for each service is documented in its own service document.
 
@@ -119,12 +129,13 @@ Verify:
 # Recovery Priorities
 
 | Priority | Component |
-|----------|-----------|
+|-----------|-----------|
 | Critical | Router |
 | Critical | Proxmox VE |
 | Critical | Storage |
 | Critical | Backup Repository |
 | High | Pi-hole |
+| High | Tailscale Gateway |
 | High | NGINX Proxy Manager |
 | High | Vaultwarden |
 | Medium | Public Endpoints |
