@@ -33,9 +33,13 @@ The Main LAN uses the `192.168.50.0/24` subnet.
 | VLAN 40 | Cameras |
 | VLAN 60 | Guest devices |
 
-Only VLAN 10 is permitted to access infrastructure services on the Main LAN.
+VLAN 10 is permitted to access infrastructure services on the Main LAN.
 
-Exact subnet, gateway, and host assignments are maintained in `inventory/ip-addresses.md`.
+Infrastructure services on the Main LAN communicate according to required service dependencies.
+
+Exact subnet, gateway, and host assignments are maintained in:
+
+`inventory/ip-addresses.md`
 
 ---
 
@@ -75,7 +79,7 @@ Guest-specific network configuration belongs in the VM and container inventories
 ## Network Principles
 
 - Infrastructure services remain on the trusted Main LAN.
-- Only VLAN 10 may access the Main LAN.
+- VLAN 10 may access infrastructure services according to firewall policy.
 - Other VLANs are isolated from infrastructure.
 - Remote administration uses Tailscale.
 - SSH is never exposed through router port forwarding.
