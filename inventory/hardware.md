@@ -8,26 +8,28 @@ It is the authoritative source for physical devices, hardware specifications, an
 
 ---
 
-## Compute Host
+# Compute Host
 
 | Property | Value |
 |----------|-------|
 | Device | ASUS TUF Gaming FX505DT laptop |
 | Role | Proxmox VE hypervisor |
-| CPU | To be verified |
-| Physical Cores | To be verified |
-| Threads | To be verified |
-| Installed RAM | To be verified |
-| Integrated GPU | To be verified |
-| Dedicated GPU | To be verified |
-| Internal Storage | Documented in `inventory/storage.md` |
-| Network Interfaces | To be verified |
-| Firmware Version | To be verified |
+| CPU | AMD Ryzen 5 3550H with Radeon Vega Mobile Gfx |
+| Physical Cores | 4 |
+| Threads | 8 |
+| Installed RAM | 14 GB |
+| Integrated GPU | AMD Radeon Vega Mobile Graphics |
+| Dedicated GPU | NVIDIA GeForce GTX 1650 Mobile / Max-Q |
+| Internal Storage | NVMe 512 GB class device |
+| Network Interfaces | Gigabit Ethernet (`nic0`), WiFi (`wlp4s0`) |
+| BIOS Version | FX505DT.315 |
+| BIOS Release Date | 2020-09-22 |
+| Virtualization | AMD-V enabled |
 | Production Status | Active |
 
 ---
 
-## Router
+# Router
 
 | Property | Value |
 |----------|-------|
@@ -42,7 +44,7 @@ Detailed network design is documented under:
 
 ---
 
-## Backup Hardware
+# Backup Hardware
 
 | Property | Value |
 |----------|-------|
@@ -50,8 +52,9 @@ Detailed network design is documented under:
 | Role | Homelab backup storage |
 | Manufacturer | To be verified |
 | Model | To be verified |
-| Capacity | To be verified |
+| Capacity | 120 GB class device |
 | Connection | USB |
+| Mount Point | `/mnt/offsite-backup` |
 | Filesystem | Documented in `inventory/storage.md` |
 | Production Status | Active |
 
@@ -59,7 +62,7 @@ Backup implementation and restore mechanics are maintained in the separate `offs
 
 ---
 
-## Power Protection
+# Power Protection
 
 | Component | Status |
 |-----------|--------|
@@ -69,7 +72,7 @@ Backup implementation and restore mechanics are maintained in the separate `offs
 
 ---
 
-## Spare and Replacement Hardware
+# Spare and Replacement Hardware
 
 No spare infrastructure hardware is currently documented.
 
@@ -83,7 +86,7 @@ Potential future additions include:
 
 ---
 
-## Documentation Rules
+# Documentation Rules
 
 - Hardware specifications must be verified from the physical device or operating system.
 - Storage layout belongs in `inventory/storage.md`.

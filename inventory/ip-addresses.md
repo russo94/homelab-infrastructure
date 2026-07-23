@@ -2,41 +2,63 @@
 
 ## Purpose
 
-This document is the authoritative inventory of IP address assignments within the homelab.
+This document is the authoritative source for infrastructure IP addresses.
 
-Network architecture and VLAN design are documented separately under `docs/network/`.
-
----
-
-## Infrastructure
-
-| Hostname | Type | LAN IP | Tailscale IP | Purpose |
-|----------|------|--------|--------------|---------|
-| `proxmox` | Hypervisor | To be verified | N/A | Proxmox VE host |
-| `ts-gateway-01` | VM | `192.168.50.193` | `100.68.131.104` | Secure remote administration gateway |
-| `pihole` | LXC | `192.168.50.52` | N/A | DNS server |
-| `vaultwarden` | LXC | `192.168.50.212` | N/A | Password manager |
-| `nginx-proxy-manager` | LXC | `192.168.50.87` | N/A | Reverse proxy |
-| `home-assistant` | VM | `192.168.50.194` | N/A | Home automation |
-| `public-endpoints` | LXC | `192.168.50.201` | N/A | Public endpoints |
+All services, virtual machines, and containers should reference this document instead of maintaining their own IP address lists.
 
 ---
 
-## Networks
+# Infrastructure
+
+| Hostname | Type | ID | LAN IP | Purpose |
+|----------|------|----|--------|---------|
+| `pihole` | LXC | 100 | `192.168.50.52` | DNS filtering and resolution |
+| `nginxproxymanager` | LXC | 102 | `192.168.50.87` | Reverse proxy |
+| `ts-gateway-01` | VM | 104 | `192.168.50.193` | Remote administration gateway |
+| `home-assistant` | VM | 103 | `192.168.50.194` | Home automation |
+| `public-endpoints` | LXC | 105 | `192.168.50.201` | Public HTTPS endpoints |
+| `vaultwarden` | LXC | 101 | `192.168.50.212` | Password manager |
+
+---
+
+# Network Addressing
 
 | Network | Subnet | Gateway |
-|---------|--------|---------|
+|----------|--------|---------|
 | Main LAN | `192.168.50.0/24` | `192.168.50.1` |
-| VLAN 10 | `192.168.10.0/24` | `192.168.10.1` |
-| VLAN 20 | `192.168.20.0/24` | `192.168.20.1` |
-| VLAN 30 | `192.168.30.0/24` | `192.168.30.1` |
-| VLAN 40 | `192.168.40.0/24` | `192.168.40.1` |
-| VLAN 60 | `192.168.60.0/24` | `192.168.60.1` |
 
 ---
 
-## Notes
+# Tailscale
 
-- This document is the authoritative source for IP address assignments.
-- Service documentation should reference this document rather than duplicate IP addresses.
-- Update this file whenever an address assignment changes.
+| Hostname | LAN IP | Tailscale IP |
+|----------|--------|--------------|
+| `ts-gateway-01` | `192.168.50.193` | `100.68.131.104` |
+
+---
+
+# Notes
+
+IP addresses should remain stable for infrastructure services.
+
+Infrastructure addresses should use:
+
+- Static assignments
+- DHCP reservations
+- Or another documented method
+
+Client device addressing is not maintained here.
+
+---
+
+# Documentation Rules
+
+Update this file whenever:
+
+- A VM changes IP address
+- A container changes IP address
+- A service is migrated
+- A new infrastructure service is deployed
+- A device is removed
+
+This file should always represent the current production network state.

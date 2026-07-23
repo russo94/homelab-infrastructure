@@ -2,79 +2,96 @@
 
 ## Purpose
 
-This document records the storage devices used by the homelab.
+This document records storage devices used by the homelab.
 
-It is the authoritative source for physical storage devices, filesystems, mount points, and their intended purpose.
+It is the authoritative source for physical storage devices, filesystems, mount points, and storage roles.
 
 ---
 
-# Proxmox System Storage
+# Internal Storage
+
+## Proxmox System Disk
 
 | Property | Value |
 |----------|-------|
-| Device | To be verified |
-| Purpose | Proxmox operating system and virtual workloads |
-| Capacity | To be verified |
-| Filesystem | To be verified |
-| Mount Point | `/` |
-| Production Status | Active |
+| Device | NVMe SSD |
+| Capacity | ~477 GB |
+| Role | Proxmox VE system and VM/LXC storage |
+| Device Name | `nvme0n1` |
+| Storage Type | LVM |
+| Status | Active |
+
+---
+
+## Partition Layout
+
+| Partition | Size | Purpose |
+|-----------|------|---------|
+| `nvme0n1p1` | ~1 MB | EFI metadata |
+| `nvme0n1p2` | 1 GB | EFI boot partition |
+| `nvme0n1p3` | ~476 GB | Proxmox LVM storage |
+
+---
+
+## Proxmox LVM Layout
+
+| Logical Volume | Size | Purpose |
+|----------------|------|---------|
+| `pve-root` | 96 GB | Proxmox operating system |
+| `pve-swap` | 8 GB | Swap |
+| `pve-data` | ~349 GB | VM and container storage |
+
+---
+
+# Virtual Machine Storage
+
+| ID | Service | Disk Allocation |
+|----|---------|----------------|
+| 100 | Pi-hole | 2 GB |
+| 101 | Vaultwarden | 20 GB |
+| 102 | NGINX Proxy Manager | 8 GB |
+| 103 | Home Assistant | 32 GB |
+| 104 | Tailscale Gateway | 8 GB |
+| 105 | Public Endpoints | 4 GB |
 
 ---
 
 # Backup Storage
 
+## External USB Backup Disk
+
 | Property | Value |
 |----------|-------|
-| Device | External USB Drive |
-| Purpose | Offsite Backup Repository |
-| Capacity | To be verified |
+| Device | USB external storage |
+| Device Name | `sda` |
+| Capacity | ~120 GB |
+| Mount Point | `/mnt/offsite-backup` |
+| Role | Offsite backup storage |
 | Filesystem | To be verified |
-| Mount Point | To be verified |
-| Production Status | Active |
+| Status | Active |
 
-This storage is used exclusively by the **offsite-backup-v2** project.
+Backup implementation is documented in:
 
----
-
-# Storage Layout
-
-| Storage | Purpose |
-|---------|---------|
-| Proxmox System Storage | Hypervisor, VMs, and Linux Containers |
-| External USB Storage | Offsite backups |
+`offsite-backup-v2`
 
 ---
 
-# Backup Repository
+# Storage Rules
 
-The backup implementation is documented in the **offsite-backup-v2** repository.
-
-This repository documents:
-
-- where backups are stored
-- what depends on the storage
-- disaster recovery order
-
-It does **not** duplicate backup implementation details.
-
----
-
-# Future Storage
-
-Potential future additions:
-
-- NAS
-- Secondary backup disk
-- Cloud backup
-- ZFS storage
-- Replication target
+- Production data must have a documented backup strategy.
+- Storage changes must be documented before removing old devices.
+- Disk replacements should include verification of restore procedures.
+- VM and container storage allocation changes should be reflected in inventory.
 
 ---
 
 # Documentation Rules
 
-- Device names should be verified from the operating system.
-- UUIDs should be documented when useful for recovery.
-- Mount points should always reflect the production environment.
-- Backup implementation belongs in the backup repository.
-- Update this document whenever storage devices are added, removed, reformatted, or repurposed.
+Update this file whenever:
+
+- A disk is added
+- A disk is removed
+- Storage is expanded
+- Mount points change
+- Backup devices change
+- Filesystems are modified
