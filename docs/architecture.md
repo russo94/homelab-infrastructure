@@ -2,9 +2,9 @@
 
 ## Overview
 
-This document provides a high-level overview of the homelab infrastructure.
+This document describes the high-level architecture of the homelab.
 
-Detailed implementation, configuration, and operational procedures are documented in the individual service and infrastructure documents.
+It explains how the infrastructure is organized and how the major components interact. Deployment-specific details such as IP addresses, VM IDs, container IDs, and resource allocations are maintained in the inventory.
 
 ---
 
@@ -12,46 +12,95 @@ Detailed implementation, configuration, and operational procedures are documente
 
 | Component | Description |
 |-----------|-------------|
-| Host | ASUS TUF FX505DT Laptop |
+| Host | ASUS TUF FX505DT laptop |
 | Hypervisor | Proxmox VE |
 | Router | ASUS GT-BE98 |
-| Backup Storage | USB External Drive |
+| Backup Storage | USB external drive |
 
 ---
 
-## Network
+## Network Design
 
-| Network | Purpose |
-|---------|---------|
-| Main LAN | Infrastructure and servers |
-| VLAN 10 | Personal Devices |
-| VLAN 20 | IoT Devices |
-| VLAN 30 | Media Devices |
-| VLAN 40 | Cameras |
-| VLAN 60 | Guest Network |
+The homelab uses segmented networking to separate infrastructure, trusted devices, IoT devices, media devices, cameras, and guests.
+
+The network consists of:
+
+- Main LAN for infrastructure and servers
+- VLAN 10 for trusted personal devices
+- VLAN 20 for IoT devices
+- VLAN 30 for media devices
+- VLAN 40 for cameras
+- VLAN 60 for guest devices
+
+Only VLAN 10 is permitted to access infrastructure services on the Main LAN.
+
+Detailed network documentation is maintained under:
+
+`docs/network/`
 
 ---
 
-## Compute
+## Compute Platform
 
-| ID | Type | Name | IP Address | Purpose |
-|----|------|------|------------|---------|
-| 100 | LXC | Pi-hole | 192.168.50.52 | DNS Server |
-| 101 | LXC | Vaultwarden | 192.168.50.212 | Password Manager |
-| 102 | LXC | NGINX Proxy Manager | 192.168.50.87 | Reverse Proxy |
-| 103 | VM | Home Assistant | 192.168.50.194 | Home Automation |
-| 104 | VM | Tailscale Gateway | 192.168.50.193 | Secure Remote Access |
-| 105 | LXC | public-endpoints | 192.168.50.201 | Public Endpoints |
+The infrastructure runs on Proxmox VE and consists of a combination of virtual machines and Linux containers.
+
+Current deployment information is maintained in:
+
+- `inventory/virtual-machines.md`
+- `inventory/containers.md`
+- `inventory/ip-addresses.md`
+
+The inventory is the authoritative source for:
+
+- VM and container IDs
+- Hostnames
+- IP addresses
+- Operating systems
+- Resource allocations
+- Deployment status
+
+---
+
+## Remote Administration
+
+Remote administration is performed through Tailscale.
+
+Administrative services such as SSH are not exposed directly to the Internet.
+
+The Tailscale gateway provides secure remote access to internal infrastructure.
+
+Detailed documentation is maintained in:
+
+`docs/services/tailscale-gateway.md`
 
 ---
 
 ## Public Services
 
-| Service | Public | Access |
-|---------|--------|--------|
-| Vaultwarden | Yes | Cloudflare → NGINX Proxy Manager |
-| Tesla Fleet Public Key | Yes | public-endpoints |
-| Home Assistant | No | Accessible only through Tailscale |
+Only explicitly approved services are exposed to the Internet.
+
+Current public services include:
+
+- Vaultwarden
+- Tesla Fleet public endpoint
+
+External traffic follows this path:
+
+```text
+Internet
+   │
+   ▼
+Cloudflare
+   │
+   ▼
+NGINX Proxy Manager
+   │
+   ├── Vaultwarden
+   │
+   └── Public Endpoints
+```
+
+All other services remain accessible only through the private network or Tailscale.
 
 ---
 
@@ -65,34 +114,61 @@ Detailed implementation, configuration, and operational procedures are documente
                         │
                         ▼
               NGINX Proxy Manager
-                     │
-        ┌────────────┴────────────┐
-        ▼                         ▼
-   Vaultwarden             public-endpoints
-                                      │
-                                      ▼
-                         Tesla Fleet Public Key
+                   │         │
+                   ▼         ▼
+             Vaultwarden  Public Endpoints
 
-────────────────────────────────────────────────
+────────────────────────────────────────────
 
-              Proxmox VE Hypervisor
-
-   LXC 100  Pi-hole
-   LXC 101  Vaultwarden
-   LXC 102  NGINX Proxy Manager
-   VM  103  Home Assistant
-   VM  104  Tailscale Gateway
-   LXC 105  public-endpoints
+                 Proxmox VE Host
+                        │
+             ┌──────────┴──────────┐
+             ▼                     ▼
+      Virtual Machines      Linux Containers
+             │                     │
+             └──────────┬──────────┘
+                        ▼
+                Internal Services
+                        │
+                        ▼
+                 Tailscale Access
 ```
 
 ---
 
-## Documentation
+## Backup Architecture
 
-| Document | Description |
-|----------|-------------|
-| `docs/network.md` | Network topology and VLAN configuration |
-| `docs/security.md` | Security policies and hardening |
-| `docs/services/` | Individual service documentation |
-| `docs/integrations/` | Third-party integrations |
-| `docs/adr/` | Architecture Decision Records |
+The homelab uses an external USB drive for offsite-style backup storage.
+
+Backup implementation, retention, automation, and restore mechanics are maintained in the separate repository:
+
+`offsite-backup-v2`
+
+This repository documents how the backup system fits into the homelab and the order in which services should be restored.
+
+---
+
+## Documentation Structure
+
+| Topic | Location |
+|-------|----------|
+| Network | `docs/network/` |
+| Security | `docs/security.md` |
+| Inventory | `inventory/` |
+| Services | `docs/services/` |
+| Integrations | `docs/integrations/` |
+| Architecture decisions | `docs/adr/` |
+| Diagrams | `diagrams/` |
+| Backup implementation | `offsite-backup-v2` repository |
+
+---
+
+## Design Principles
+
+- Single source of truth
+- Separation of concerns
+- Least privilege
+- Minimal public exposure
+- Recovery-first documentation
+- Modular and maintainable design
+- Verified facts instead of assumptions
